@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+  <title>Sliding Puzzle based on MooTools</title>
+  <link rel="stylesheet" href="css/reset-fonts-grids.css" type="text/css"> 
+  <link rel="stylesheet" href="css/base.css" type="text/css">
+  <link rel="stylesheet" href="css/puzzle.css" type="text/css">
+  <style type="text/css">
+  </style>
+</head>
+<body>
+<div id="doc" class="yui-t7">
+   <div id="hd" role="banner"><h1>Sliding Puzzle Game based on MooTools</h1></div>
+   <div id="bd" role="main">
+	<div class="yui-g">
+                   <div id="logger"></div>
+                   <p id="message">Adrian won successfully!</p>
+                   <div id="board">
+                           <div class="tr"><span></span><span></span><span></span></div>
+                           <div class="tr"><span></span><span></span><span></span></div>
+                           <div class="tr"><span></span><span></span><span></span></div>
+                   </div>
+                   <input type="button" id="shuffle" name="shuffle" value="shuffle"/>
+                   <div id="boxmoves">Moves: <span id="moves"></span></div> 
+                   <div id="timer">Time: <span id="time_min">--</span> : <span id="time_sec">--</span> : <span id="time_msec">--</span></div>
+	</div>
+
+	</div>
+   <div id="ft" role="contentinfo"><p>Created By <a href="http://thinkphp.ro">Adrian Statescu</a></p></div>
+</div>
+
+
+<script type="text/javascript" src="moo.js"></script>
+<script type="text/javascript" src="board.js"></script>
+<script type="text/javascript" src="controller.js"></script>
+</body>
+</html>
+

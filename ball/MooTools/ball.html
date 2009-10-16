@@ -1,0 +1,437 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+   <title>Canvas Ball</title>
+   <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
+   <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/base/base.css" type="text/css">
+   <style type="text/css">
+   html,body{background:#69c;margin:0;padding:0;}
+   #doc{background:#fff;border:1em solid #fff;}
+   h1{font-family:Calibri,Arial,Sans-serif;font-size:200%;margin:0 0 .5em 0; padding:0;color: #ccc}
+   #ft{color:#ccc;font-style: verdana;font-size:100%;position:relative;text-align: left;margin: 3em 0 0 0 ;}
+   #ft a{color:#999;}
+   #canvas{background-color: #ccc;border: 1px solid #ccc}
+   #timer{position: absolute;top: 2px;left: 500px;font-size: 70px;font-family: calibri;font-weight:bold;padding: 5px;}
+   #logger{position:absolute;left: 12.6%;top:20%; float: left;padding: 0.5em 0em 0.2em;margin-left: 10px;width: 295px;height: 80px;border: 1px solid #d6d6d6;border-left-color: #e4e4e4;border-top-color: #e4e4e4;margin-top: 10px;visibility: hidden;font-size: 25px;font-weight: bold;text-align: center;z-index:3;}
+  </style>
+</head>
+<body>
+<div id="doc" class="yui-t7">
+   <div id="hd" role="banner"><h1>Canvas Ball </h1></div>
+   <div id="bd" role="main">
+	<div class="yui-g">
+    <div class="yui-u first">
+
+    <canvas id="canvas" height="300" width="300"></canvas><br/>
+    <input type="button" id="run" value="run" />
+    <input id="reset" type="button" value="reset" />
+
+    </div>
+    <div class="yui-u">
+
+         <div id="timer">
+             <span id="time_min"></span>:<span id="time_sec"></span>:<span id="time_msec"></span><br/>
+         </div>
+
+         <div id="logger"></div>
+    </div>
+</div>
+
+	</div>
+   <div id="ft" role="contentinfo"><p>Written By <a href="http://thinkphp.ro">Adrian Statescu</a></p></div>
+</div>
+
+
+
+
+  <script type="text/javascript" src="moo.js"></script>
+  <script type="text/javascript">
+
+   //if onDomready then go...
+   window.addEvent('domready',function(){
+
+          /* init vars */
+          var WIDTH;
+
+          var HEIGHT;
+
+          var ctx;
+
+          var x,y,r; 
+
+          var dx = 1.5, dy = -5;
+
+          var paddlex,paddley,paddlew,paddleh;
+
+          var left = false, right = false; 
+
+          var nrcols, nrrows;
+ 
+          var bricks; 
+
+          var brickw,brickh;
+
+          var timer;
+
+          var padding = 1; 
+
+          var ballcolor = '#000';
+
+          var paddlecolor = '#c00';
+
+          //function which does all the game
+          function draw() {
+
+              clear();   
+
+              ctx.fillStyle = paddlecolor;
+
+              if(left) {paddlex -= 5;}
+
+              if(right) {paddlex += 5;}
+
+              rect(paddlex,paddley,paddlew,paddleh);
+
+              drawbricks();
+
+              circle(x,y,r); 
+
+              //hit the brick
+              var a = brickh + padding;
+              var b = brickw + padding;
+              var row = Math.floor(y/a);
+              var col = Math.floor(x/b); 
+
+              if(y < (nrrows*(brickh+1)) && row>=0 && col>=0 && bricks[row][col] == 1) {
+
+                     dy = -dy; 
+
+                     bricks[row][col] = 0;  
+              }
+
+              
+              //conditions
+              if(x + dx + r > WIDTH || x + dx - r < 0) {
+
+                    //reverse
+                    dx = -dx;
+              }
+
+              if(y + dy - r < 0) {
+ 
+                    //reverse
+                    dy = -dy;
+
+              } else if(y + dy + r > HEIGHT - paddleh) {
+
+                     if(x + dx>= paddlex && x + dx  <= paddlex+paddlew) {
+
+                            dx = 8*((x - (paddlex + paddlew/2))/paddlew);
+
+                            //reverse
+                            dy = -dy;
+
+                     } else if(y + dx + r > HEIGHT){
+ 
+                            //game over
+                            $clear(timer); 
+
+                            $('run').disabled = false;
+
+                            stopCounter();
+                     }
+              }
+
+              x += dx;
+
+              y += dy;
+          }
+
+          //function which draws a circle with given coords pass formal
+          function circle(x,y,r) {
+
+               ctx.fillStyle = ballcolor;
+
+               ctx.beginPath();
+
+               ctx.arc(x,y,r,0,Math.PI*2,true);
+
+               ctx.closePath();
+
+               ctx.fill();
+ 
+          }
+
+          //clear the background canvas
+          function clear() {
+
+               ctx.clearRect(0,0,WIDTH,HEIGHT);
+          }
+
+
+          //function which draw the bricks
+          function drawbricks() {
+ 
+               for(var i=0;i<nrrows;i++) {
+
+                        for(var j=0;j<nrcols;j++) {
+
+                                if(bricks[i][j] == 1) {
+ 
+                                   rect( (j*(brickw + padding)) + padding,(i*(brickh + padding)) + padding, brickw, brickh); 
+                                }
+                        }
+               }
+     
+          }
+
+          //function which make the initialization of the bricks
+          function init_bricks() {
+
+              nrrows = 4;
+
+              nrcols = 5; 
+
+              //set bricks
+              brickw = (WIDTH / nrcols) - 1; 
+
+              brickh = 15;
+
+              bricks = new Array(nrrows);
+
+               for(var i=0;i<nrrows;i++) {
+
+                   bricks[i] = new Array(nrcols);
+
+                         for(var j=0;j<nrcols;j++) {
+
+                               bricks[i][j] = 1;
+                         }
+               }
+          } 
+
+          //function which draw a rectagle with the coords pass in the formal parameters
+          function rect(x,y,w,h) {
+
+               ctx.beginPath();
+
+               ctx.rect(x,y,w,h);  
+
+               ctx.closePath();
+
+               ctx.fill();
+          }
+
+          //function which make initialize of the paddle
+          function init_paddle() {
+
+              //set width of the paddle
+              paddlew = 75;
+              //set height of the paddle
+              paddleh = 10;
+              //set abs X of the paddle
+              paddlex = WIDTH/2 - 100;
+              //set ord Y of the paddle
+              paddley = HEIGHT - paddleh;
+
+              //draw paddle on canvas
+              rect(paddlex,paddley,paddlew,paddleh);
+          }
+
+          function init() {
+
+              //get context canvas
+              ctx = document.getElementById('canvas').getContext('2d');
+
+              //get width of the canvas
+              WIDTH = $('canvas').getCoordinates().width - 2 ;
+
+              //get height of the canvas
+              HEIGHT = $('canvas').getCoordinates().height - 2;
+
+              //set abs x,ord y,and rad of the ball
+              x = 90,y = 100,r = 10; 
+
+              //init paddle
+              init_paddle();     
+ 
+              //init bricks
+              init_bricks();
+ 
+              //set timer for interval
+              timer = setInterval(draw,10);
+
+              //set button with ID 'run' as 'disables' because game is running
+              $('run').disabled = true;
+
+            //return timerID
+            return timer;
+          }            
+
+
+          //attach a handler for event keydown
+          $(document).addEvent('keydown',function(e){
+
+                   var key = e.key;
+
+                   if(key == 'left') {left = true;}
+
+                   if(key == 'right') {right = true;}         
+
+          }); 
+
+          //attach a handler for event keyup
+          $(document).addEvent('keyup',function(e){
+
+                   var key = e.key;
+
+                   if(key == 'left') {left = false;}
+
+                   if(key == 'right') {right = false;}         
+
+          }); 
+
+          //attach a handler for event mousemove
+          $(document).onmousemove = function(e){
+
+                   if(e.clientX > $('canvas').getCoordinates().left && e.clientX < $('canvas').getCoordinates().left + WIDTH) {
+
+                         paddlex = Math.max(e.clientX - $('canvas').getCoordinates().left - (paddlew/2),0);   
+
+                         paddlex = Math.min(WIDTH - paddlew,paddlex);
+                   }
+          }
+
+          //attach a button handler for event 'click'
+          $('run').addEvent('click',function(){ 
+
+                   startCounter();
+
+                   init();
+
+                   $('run').disabled = true;
+          });
+
+
+          /* starts Attach Timer */
+
+          var interval; 
+
+          var currentCounter = new Hash({msec: 0,sec: 0,min: 0});
+
+          var timerCount = function() { 
+
+              if(this.sec <= 9) {
+
+                     $('time_sec').set('text','0'+this.sec);
+
+              } else {
+
+                     $('time_sec').set('text',this.sec);
+             }
+
+              var currentmsec = this.msec++;
+
+                  if(currentmsec == 60) { 
+
+                        ++this.sec;
+ 
+                        this.msec = 0; 
+                  }
+
+                  if(this.sec == 60) { 
+                       
+                       this.min++;
+
+                       if(this.min <= 9) {  
+
+                               $('time_min').set('text','0'+this.min);
+
+                       } else {
+
+                               $('time_min').set('text',this.min);
+                       }
+
+                       this.sec = 0;
+                  }
+
+
+                  if(currentmsec <= 9) {
+
+                      $('time_msec').set('text','0'+currentmsec);
+
+                  } else {
+
+                      $('time_msec').set('text',currentmsec);
+                  }
+
+          }  
+
+          var startCounter = function() {
+
+                    interval = timerCount.periodical(10,currentCounter);
+
+                    burn('Start Game');
+          }            
+
+          var stopCounter = function() {
+
+                    $clear(interval);
+
+		    $('timer').highlight('#EFE02F');
+
+                    $('canvas').highlight('#EFE02F');
+
+                    burn('Game Over');
+               }
+
+          $('reset').addEvent('click',function(e){   
+
+                    $clear(interval);
+
+		    $('timer').highlight('#EFE02F');
+
+                    currentCounter.set('msec',0);
+
+                    currentCounter.set('sec',0);
+
+                    currentCounter.set('min',0);
+
+                    $('time_msec').set('text','0'+currentCounter.msec);
+
+                    $('time_sec').set('text','0'+currentCounter.sec);
+
+                    $('time_min').set('text','0'+currentCounter.min);     
+
+          });
+
+          /* ends Attach Timer */
+
+          var logger = $('logger');
+ 
+          var fx = new Fx.Morph(logger,{duration: 1000});
+
+          var burn = function(text) { 
+
+              logger.set('text',text);
+
+              fx.start({
+
+                'background-color': ['#fff36f', '#fff'],
+
+                'opacity': [1, 0]
+ 
+              });  
+
+          };//end function burn
+
+          $('reset').fireEvent('click');
+
+          $('run').fireEvent('click');
+
+});//end function domready
+
+</script>
+
+</body>
+</html>

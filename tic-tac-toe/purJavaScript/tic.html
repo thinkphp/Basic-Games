@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+   <title>Tic-Tac-Toe based on pur JavaScript</title>
+   <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
+   <style type="text/css">
+   html,body{background: #69A150;margin:0;padding:0;}
+   #doc{background:#fff;border:1em solid #fff;}
+   h1{font-family:Calibri,Arial,Sans-serif;font-size:300%;margin:0 0 .5em 0; padding:0;color: #ccc;font-weight: bold}
+   #ft{color:#ccc;font-style: verdana;font-size: 100%;position:relative;text-align: left;margin: 3em 0 0 0;}
+   #ft p{font-size: 12px}
+   #ft a{color:#999;}
+   table,td {border: 3px solid #fff;} 
+   td{background: #A0D69E;font-family: calibri;text-align: center;width: 150px;height: 150px;cursor: pointer;font-size: 100px;color: #264C15}
+   #start{position: relative;float: right}
+   p{font-family: calibri;font-size: 20px}
+   strong{font-weight: bold;}
+   em{font-style: oblique}
+   </style>
+   <script type="text/javascript" src="dom.js"></script>
+   <script type="text/javascript" src="board.js"></script>
+
+</head>
+<body>
+<div id="doc" class="yui-t7">
+   <div id="hd" role="banner"><h1>Tic-Tac-Toe</h1></div>
+   <div id="bd" role="main">
+	<div class="yui-g">
+
+<p id="message"></p><input type="button" id="start" value="start game" />
+<table id="board">
+  <tr><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td></tr>
+</table>
+
+
+	</div>
+
+	</div>
+   <div id="ft" role="contentinfo"><p>Written By <a href="http://thinkphp.ro">Adrian Statescu</a></p></div>
+</div>
+
+
+  <script type="text/javascript">
+
+       (function() {
+
+            var board = exports.Board();
+
+            var elems = [];
+
+            var you = 'x'; 
+
+            var elemcolor = '#264C15'; 
+
+            var init = function() {
+
+                setPieces();
+
+                board.on('init',showBoard);
+
+                board.on('move',showBoard);
+
+                board.on('turn',showTurn);
+
+                newGame();
+
+                DOMhelp.addEvent(DOMhelp.$('board'),'click',onClick,false);
+
+                DOMhelp.$('start').disabled = true;
+            };
+
+            var onClick = function(e) {
+
+                var move = {};
+
+                var target = DOMhelp.getTarget(e);
+
+                    if(target.nodeName.toLowerCase() == 'td') {
+
+                       if(board.isActive()) {
+
+                          if(board.getTurn() != you) {
+
+                                 alert('It\'s not your turn');
+
+                                 return; 
+                          }
+
+                       } else {
+
+                            alert('Game over');
+ 
+                            return; 
+                       }
+
+                       for(var i=0;i<3;i++) {
+
+                         for(var j=0;j<3;j++) {
+
+                             if(elems[i][j] == target) move[you] = [i,j];
+
+                         }//endfor
+
+                      }//endfor
+
+                      if(!board.move(move)) {
+
+                          alert('Desole, Invalide turn');
+                      }
+ 
+                    }//endif
+ 
+            };
+
+            var setPieces = function() {
+
+                var board = DOMhelp.$('board');
+
+                var TRs = board.getElementsByTagName('tr'); 
+
+                    for(var i=0;i<TRs.length;i++) {
+
+                            elems.push([]);
+
+                            var TDs = TRs[i].getElementsByTagName('td');
+
+                            for(var j=0;j<TDs.length;j++) {
+
+                                elems[elems.length-1].push(TDs[j]);                                  
+
+                            }//end for 
+
+                    }//end for
+
+            }//end function setPieces
+
+
+            var showBoard = function(pieces) {
+
+                var winner, msg;
+
+                for(var i=0;i<3;i++) {
+
+                    for(var j=0;j<3;j++) {
+
+                        elems[i][j].innerHTML = pieces[i][j]; 
+
+                    }//endfor
+
+                }//endfor
+
+
+                if(!board.isActive()) {
+
+                    winner = board.getWinner();
+
+                    if(winner == null) {
+
+                        msg = 'Tie Game';
+
+                    } else if(winner == you) {
+
+                        msg = 'You won!';
+
+                        highlight();
+
+                    } else {
+
+                        msg = 'Way yo lose! 0 is winner! Loser!';
+
+                        highlight();
+                    } 
+
+                    message(msg);
+
+                   DOMhelp.$('start').disabled = false;
+
+                   DOMhelp.addEvent(DOMhelp.$('start'),'click',function(){newGame();},false);
+
+                }//end if board.isActive 
+
+            };//end function
+         
+
+            var message = function(text) {
+
+                DOMhelp.$('message').innerHTML = text;
+
+            };//end function
+
+
+            var moveOpponent = function() {
+
+                setTimeout(function() {
+
+                      var moves = board.getMoves();
+ 
+                      var move = {'0': moves[rand(moves)]};                    
+
+                      board.move(move);
+
+                },rand(1000,1500));
+
+            };//end function 
+
+            var showTurn = function(turn) {
+
+                if(turn == 'x') {
+
+                    message('It\'s <strong><em>your</em></strong> turn');
+ 
+                } else {
+
+                    message('It\'s your <strong><em>opponent</em></strong> turn');
+
+                    moveOpponent();
+                }
+
+            };//end function
+
+            /* start new game */
+            var newGame = function() {
+
+                DOMhelp.$('start').disabled = true;
+
+                board.init();
+
+                showTurn(board.getTurn());
+
+                resetColorsElems();
+
+            };//end function
+
+
+            /* utils functions */
+            function rand(from,to) {
+
+                     if(from.length == undefined) {
+
+                          return from + Math.floor(Math.random()*(to - from + 1));
+
+                     } else {
+
+                          return arguments.callee(0, (from.length-1)); 
+                     }
+
+            };//end function rand
+
+ 
+            function highlight() {
+
+                    var sol = board.getSolinvec();
+
+                        for(var i=0;i<sol.length;i++) {
+
+                                elems[sol[i][0]][sol[i][1]].style.color = '#c00';
+                        } 
+
+            };//end function
+
+            function resetColorsElems() {
+
+                     for(var i=0;i<3;i++) {
+
+                        for(var j=0;j<3;j++) {
+                         
+                                elems[i][j].style.color = elemcolor;
+
+                        }//endfor
+
+                     }//endfor
+
+            };//end function
+ 
+            //init game
+            init();
+
+       })();
+
+    </script>  
+</body>
+</html>

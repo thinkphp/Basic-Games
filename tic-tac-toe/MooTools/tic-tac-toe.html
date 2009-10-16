@@ -1,0 +1,320 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+   <title>Tic-Tac-Toe based on Moo</title>
+   <link rel="stylesheet" href="http://yui.yahooapis.com/2.7.0/build/reset-fonts-grids/reset-fonts-grids.css" type="text/css">
+   <style type="text/css">
+   html,body{background: #69A150;margin:0;padding:0;}
+   #doc{background:#fff;border:1em solid #fff;}
+   h1{font-family:Calibri,Arial,Sans-serif;font-size:300%;margin:0 0 .5em 0; padding:0;color: #ccc;font-weight: bold}
+   #ft{color:#ccc;font-style: verdana;font-size: 100%;position:relative;text-align: left;margin: 3em 0 0 0;}
+   #ft p{font-size: 12px}
+   #ft a{color:#999;}
+   table,td {border: 3px solid #fff;} 
+   td{background: #A0D69E;font-family: calibri;text-align: center;width: 150px;height: 150px;cursor: pointer;font-size: 100px;color: #264C15}
+   #start{position: relative;float: right}
+   p{font-family: calibri;font-size: 20px}
+   strong{font-weight: bold;}
+   em{font-style: oblique}
+   #logger{position:absolute;left: 20.1%;top:30%; float: left;padding: 0.5em 0em 0.2em;margin-left: 10px;width: 295px;height: 80px;border: 1px solid #d6d6d6;border-left-color: #e4e4e4;border-top-color: #e4e4e4;margin-top: 10px;visibility: hidden;font-size: 25px;font-weight: bold;text-align: center;z-index:3;}
+   </style>
+   <script type="text/javascript" src="moo.js"></script>
+   <script type="text/javascript" src="board.js"></script>
+
+</head>
+<body>
+<div id="doc" class="yui-t7">
+   <div id="hd" role="banner"><h1>Tic-Tac-Toe</h1></div>
+   <div id="bd" role="main">
+	<div class="yui-g">
+
+<p id="message"></p><input type="button" id="start" value="start game" />
+<table id="board">
+  <tr><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td></tr>
+  <tr><td></td><td></td><td></td></tr>
+</table>
+
+<div id="logger">Start Game</div>
+
+	</div>
+
+	</div>
+   <div id="ft" role="contentinfo"><p>Written By <a href="http://thinkphp.ro">Adrian Statescu</a></p></div>
+</div>
+
+
+<script type="text/javascript">
+
+(function() {
+
+            var board = exports.Board();
+
+            var elems = [];
+
+            var you = 'x'; 
+
+            var elemcolor = '#264C15'; 
+ 
+            var elemback = '#A0D69E';
+
+            var init = function() {
+
+                setPieces();
+
+                board.on('init',showBoard);
+
+                board.on('move',showBoard);
+
+                board.on('turn',showTurn);
+
+                newGame();
+
+                $('board').addEvent('click',onClick);
+
+                $('start').disabled = true;
+            };
+
+            var onClick = function(e) {
+
+                var move = {};
+
+                var target = e.target;
+
+                    if(target.nodeName.toLowerCase() == 'td') {
+
+                       if(board.isActive()) {
+
+                          if(board.getTurn() != you) {
+
+                                 burn('It\'s not your turn!');
+
+                                 return; 
+                          }
+
+                       } else {
+
+                            burn('Game Over!');
+ 
+                            return; 
+                       }
+
+                       for(var i=0;i<3;i++) {
+
+                         for(var j=0;j<3;j++) {
+
+                             if(elems[i][j] == target) move[you] = [i,j];
+
+                         }//endfor
+
+                      }//endfor
+
+                      if(!board.move(move)) {
+
+                         burn('Desole, Invalid turn!');
+                      }
+ 
+                    }//endif target TD
+ 
+            };//end handler onClick
+
+            var setPieces = function() {
+
+                var TRs = $$('#board tr') 
+
+                    for(var i=0;i<TRs.length;i++) {
+
+                            elems.push([]);
+
+                            var TDs = TRs[i].getElements('td');
+
+                            for(var j=0;j<TDs.length;j++) {
+
+                                elems[elems.length-1].push(TDs[j]);                                  
+
+                            }//end for 
+
+                    }//end for
+
+            }//end function setPieces
+
+
+            var showBoard = function(pieces) {
+
+                var winner, msg;
+
+                for(var i=0;i<3;i++) {
+
+                    for(var j=0;j<3;j++) {
+
+                        elems[i][j].set('html',pieces[i][j]); 
+
+                    }//endfor
+
+                }//endfor
+
+
+                if(!board.isActive()) {
+
+                    winner = board.getWinner();
+
+                    if(winner === null) {
+
+                        msg = 'Tie Game';
+
+                        burn('Tie Game');
+
+                    } else if(winner == you) {
+
+                        msg = 'You won! Congratulations!';
+
+                        burn('You won! Congratulations!');
+
+                        highlight();
+
+                    } else {
+
+                        msg = '0 is winner! Loser!';
+
+                        burn('0 is winner! Loser!');
+
+                        highlight();
+                    } 
+
+                    message(msg);
+
+                    $('start').disabled = false;
+
+                    $('start').addEvent('click',newGame);
+
+                }//end if board.isActive 
+
+            };//end function
+         
+
+            var message = function(text) {
+
+                $('message').set('html',text);
+
+            };//end function
+
+
+            var moveOpponent = function() {
+
+                setTimeout(function() {
+
+                      var moves = board.getMoves();
+ 
+                      var move = {'0': moves[rand(moves)]};                    
+
+                      board.move(move);
+
+                },rand(1000,1500));
+
+            };//end function 
+
+            var showTurn = function(turn) {
+
+                if(turn == 'x') {
+
+                    message('It\'s <strong><em>your</em></strong> turn');
+ 
+                } else {
+
+                    message('It\'s your <strong><em>opponent</em></strong> turn');
+
+                    moveOpponent();
+                }
+
+            };//end function
+
+            /* start new game */
+            var newGame = function() {
+
+                burn('Start new Game!');
+
+                $('start').disabled = true;
+
+                board.init();
+
+                showTurn(board.getTurn());
+
+                resetColorsElems();
+
+            };//end function
+
+
+    /*** utils functions ***/
+
+            function rand(from,to) {
+
+                     if(from.length == undefined) {
+
+                          return from + Math.floor(Math.random()*(to - from + 1));
+
+                     } else {
+
+                          return arguments.callee(0, (from.length-1)); 
+                     }
+
+            };//end function rand
+
+ 
+            function highlight() {
+
+                    var sol = board.getSolinvec();
+
+                        for(var i=0;i<sol.length;i++) {
+
+                                elems[sol[i][0]][sol[i][1]].setStyle('color','#fff');
+
+                                elems[sol[i][0]][sol[i][1]].setStyle('background-color','#A32727');
+
+                                elems[sol[i][0]][sol[i][1]].highlight('#69A150');
+                        } 
+
+            };//end function
+
+            function resetColorsElems() {
+
+                     for(var i=0;i<3;i++) {
+
+                        for(var j=0;j<3;j++) {
+                         
+                                elems[i][j].setStyles({'color':elemcolor,'background-color': elemback});
+
+                        }//endfor
+
+                     }//endfor
+
+            };//end function
+
+
+          var logger = $('logger');
+ 
+          var fx = new Fx.Morph(logger,{duration: 1200});
+
+          var burn = function(text) { 
+
+              logger.set('text',text);
+
+              fx.start({
+
+                'background-color': ['#fff36f', '#fff'],
+
+                'opacity': [1, 0]
+ 
+              });  
+
+          };//end function burn
+
+ 
+    //called init
+    init();
+
+})();//do EXEC
+
+    </script>  
+</body>
+</html>

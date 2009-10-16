@@ -1,0 +1,21 @@
+/*
+Copyright (c) 2009, thinkphp All rights reserved.
+Code licensed under the BSD License:
+http://thinkphp.ro/license.txt
+version: 1.0.0
+*/
+/**
+ * THINPHP.ro
+ * @module puzzle
+ * @namespace thinkphp
+*/
+
+html,body{background:#69c;margin:0;padding:0;}
+#doc{background:#fff;border:1em solid #fff;}
+h1{font-family:Calibri,Arial,Sans-serif;font-size:300%;margin:0 0 .5em 0; padding:0;color: #ccc}
+h2{font-family:Calibri,Arial,Sans-serif;font-size:150%;margin:1em 0;padding:0;font-weight: bold}
+table,td{border: 1px solid #333;}
+td{width: 100px;height: 100px;background: #ccc;text-align: center;font-size: 30px;cursor: pointer;}
+#logger{position:absolute;left: 17.1%;top:30%; float: left;padding: 0.5em 0em 0.2em;margin-left: 10px;width: 295px;height: 80px;border: 1px solid #d6d6d6;border-left-color: #e4e4e4;border-top-color: #e4e4e4;margin-top: 10px;visibility: hidden;font-size: 25px;font-weight: bold;text-align: center;z-index:3;}
+#ft {margin-top: 10px;font-family: arial,verdana,sans-serif;font-size: 11px;color: #ccc}
+#ft a{color: #69c}
