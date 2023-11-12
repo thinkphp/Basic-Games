@@ -1,1 +1,1 @@
-# Games in JavaScript
+# Games in JavaScript/Python3
